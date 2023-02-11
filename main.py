@@ -1,52 +1,34 @@
 import os
 import sys
+import pygame
 import requests
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel
-
-SCREEN_SIZE = [600, 450]
-
-
-class Example(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.getImage()
-        self.initUI()
-
-    def getImage(self):
-        n = input().split()
-        map_request = f"https://static-maps.yandex.ru/1.x/?l=sat&ll={n[0]}&spn={n[1]}&l=map"
-        response = requests.get(map_request)
-
-        if not response:
-            print("Ошибка выполнения запроса:")
-            print(map_request)
-            print("Http статус:", response.status_code, "(", response.reason, ")")
-            sys.exit(1)
-
-        # Запишем полученное изображение в файл.
-        self.map_file = "map.png"
-        with open(self.map_file, "wb") as file:
-            file.write(response.content)
-
-    def initUI(self):
-        self.setGeometry(100, 100, *SCREEN_SIZE)
-        self.setWindowTitle('Отображение карты')
-
-        ## Изображение
-        self.pixmap = QPixmap(self.map_file)
-        self.image = QLabel(self)
-        self.image.move(0, 0)
-        self.image.resize(600, 450)
-        self.image.setPixmap(self.pixmap)
-
-    def closeEvent(self, event):
-        """При закрытии формы подчищаем за собой"""
-        os.remove(self.map_file)
-
-
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    ex = Example()
-    ex.show()
-    sys.exit(app.exec())
+n = input().split()
+for i in n:
+    map_request = f"https://static-maps.yandex.ru/1.x/?l=sat&ll={n[0]}&spn={n[1]}&l=map"
+    response = requests.get(map_request)
+    if not response:
+        print("Ошибка выполнения запроса:")
+        print(map_request)
+        print("Http статус:", response.status_code, "(", response.reason, ")")
+        sys.exit(1)
+    # Запишем полученное изображение в файл.
+    map_file = "map.png"
+    with open(map_file, "wb") as file:
+        file.write(response.content)
+# Инициализируем pygame
+pygame.init()
+screen = pygame.display.set_mode((600, 450))
+# Рисуем картинку, загружаемую из только что созданного файла.
+screen.blit(pygame.image.load("map.png"), (0, 0))
+# Переключаем экран и ждем закрытия окна.
+pygame.display.flip()
+i = 0
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        pygame.display.flip()
+pygame.quit()
+# Удаляем за собой файл с изображением.
+os.remove("map.png")
