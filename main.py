@@ -2,7 +2,9 @@ import os
 import sys
 import pygame
 import requests
-n = input().split()
+
+# 37.588392,55.734036 0.005,0.005
+n = input('Введите координаты и масштаб: ').split()
 for i in n:
     map_request = f"https://static-maps.yandex.ru/1.x/?l=sat&ll={n[0]}&spn={n[1]}&l=map"
     response = requests.get(map_request)
